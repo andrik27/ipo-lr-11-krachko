@@ -5,7 +5,7 @@ class Vehicle:
 
     def __init__(self, capacity, vehicle_id=None, current_load=0, clients_list=None):
         if vehicle_id is None:
-            self.vehicle_id = f"V{Vehicle.next_id}"  # Генерация нового ID
+            self.vehicle_id = f"{Vehicle.next_id}"  # Генерация нового ID
             Vehicle.next_id += 1
         else:
             self.vehicle_id = vehicle_id  # Использование существующего ID
