@@ -1,0 +1,10 @@
+{
+     "vehicles": [],
+     "clients": [
+          {
+               "name": "Алекс",
+               "cargo_weight": 0.5,
+               "is_vip": true
+          }
+     ]
+}
