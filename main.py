@@ -86,17 +86,21 @@ def main():  # Основная функция программы
         elif choice == "6":  # Если пользователь выбрал удаление транспортного средства
             try:
                 vehicle_id = int(input("Введите ID транспортного средства для удаления: "))  # Ввод ID транспортного средства
-                print(f"Попытка удалить транспортное средство с ID: {vehicle_id}")
+                if not any(v.vehicle_id == vehicle_id for v in transport_company.vehicles):
+                    print(f"Транспортное средство с ID {vehicle_id} не найдено.")
+                    continue  # Продолжение цикла при ошибке
                 transport_company.remove_vehicle(vehicle_id)  # Удаление транспортного средства из компании
                 print("Транспортное средство удалено")  # Вывод сообщения об удалении транспортного средства
             except ValueError:
                 print("Ошибка: ID транспортного средства должно быть положительным целым числом")
 
-
         elif choice == "7":  # Если пользователь выбрал удаление клиента
             client_name = input("Введите имя клиента для удаления: ")  # Ввод имени клиента
             if not client_name:
                 print("Ошибка: Имя клиента не может быть пустым")
+                continue  # Продолжение цикла при ошибке
+            if not any(c.name == client_name for c in transport_company.clients):
+                print(f"Клиент с именем {client_name} не найден.")
                 continue  # Продолжение цикла при ошибке
             transport_company.remove_client(client_name)  # Удаление клиента из компании
             print("Клиент удален")  # Вывод сообщения об удалении клиента
