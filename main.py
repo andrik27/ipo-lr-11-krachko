@@ -79,6 +79,8 @@ while Status:
             try:
                 capacity = int(capacity)
                 if capacity >= 0:
+                    if not color.isalpha():
+                        raise ValueError("Цвет грузовика должен содержать только буквы.")
                     all_vehicles.append(Truck(capacity, color))
                     print("Грузовик создан!")
                 else:
