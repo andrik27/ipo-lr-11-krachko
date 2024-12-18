@@ -48,18 +48,6 @@ class TransportApp:
         self.add_vehicle_button = tk.Button(frame, text="Добавить транспорт", command=self.add_vehicle)
         self.add_vehicle_button.pack(side=tk.LEFT, padx=5)
 
-        self.add_company_button = tk.Button(frame, text="Создать компанию", command=self.add_company)
-        self.add_company_button.pack(side=tk.LEFT, padx=5)
-
-        self.add_client_to_company_button = tk.Button(frame, text="Добавить клиента в компанию", command=self.add_client_to_company)
-        self.add_client_to_company_button.pack(side=tk.LEFT, padx=5)
-
-        self.add_vehicle_to_company_button = tk.Button(frame, text="Добавить транспорт в компанию", command=self.add_vehicle_to_company)
-        self.add_vehicle_to_company_button.pack(side=tk.LEFT, padx=5)
-
-        self.list_company_vehicles_button = tk.Button(frame, text="Список транспортных средств компании", command=self.list_company_vehicles)
-        self.list_company_vehicles_button.pack(side=tk.LEFT, padx=5)
-
         self.optimize_button = tk.Button(frame, text="Распределить грузы", command=self.optimize_cargo)
         self.optimize_button.pack(side=tk.LEFT, padx=5)
 
@@ -91,6 +79,9 @@ class TransportApp:
         self.vehicles_listbox.pack()
 
     def load_and_display_data(self):
+        self.clients_listbox.delete(0, tk.END)
+        self.vehicles_listbox.delete(0, tk.END)
+        
         for client in self.transport_company.list_clients():
             self.clients_listbox.insert(tk.END, f"{client}")
         
@@ -114,13 +105,18 @@ class TransportApp:
         tk.Checkbutton(client_window, text="VIP клиент", variable=vip_status).pack(pady=5)
 
         def save_client():
-            name = client_name_entry.get()
+            name = client_name_entry.get().strip()  # Удаление лишних пробелов
             try:
-                cargo_weight = int(cargo_weight_entry.get())
+                cargo_weight = int(cargo_weight_entry.get().strip())  # Удаление лишних пробелов
                 if not name.isalpha() or len(name) < 2:
                     raise ValueError("Имя должно содержать только буквы и быть не менее 2 символов.")
                 if cargo_weight <= 0 or cargo_weight > 10000:
                     raise ValueError("Вес груза должен быть положительным числом не более 10000 кг.")
+                
+                # Проверка на уникальность клиента
+                for client in self.transport_company.clients:
+                    if client.name == name:
+                        raise ValueError("Клиент с таким именем уже существует.")
                 
                 client = Client(name, cargo_weight, vip_status.get())
                 self.transport_company.add_client(client)
@@ -132,6 +128,7 @@ class TransportApp:
 
         tk.Button(client_window, text="Сохранить", command=save_client).pack(pady=5)
         tk.Button(client_window, text="Отмена", command=client_window.destroy).pack(pady=5)
+
 
     def edit_client(self, event):
         selected_index = self.clients_listbox.curselection()
@@ -163,6 +160,7 @@ class TransportApp:
                     if cargo_weight <= 0 or cargo_weight > 10000:
                         raise ValueError("Вес груза должен быть положительным числом не более 10000 кг.")
                     
+                    # Обновление информации о клиенте
                     client.name = name
                     client.cargo_weight = cargo_weight
                     client.is_vip = vip_status.get()
@@ -256,14 +254,10 @@ class TransportApp:
 
                     if vehicle_type == "Грузовик":
                         color = color_entry.get()
-                        if not color or not color.isalpha():
-                            raise ValueError("Цвет грузовика не может быть числом")
                         vehicle.capacity = capacity
                         vehicle.color = color
                     elif vehicle_type == "Поезд":
                         number_of_cars = int(number_of_cars_entry.get())
-                        if number_of_cars <= 0:
-                            raise ValueError("Количество вагонов должно быть положительным целым числом")
                         vehicle.capacity = capacity
                         vehicle.number_of_cars = number_of_cars
 
@@ -276,41 +270,6 @@ class TransportApp:
 
             tk.Button(vehicle_window, text="Сохранить", command=save_vehicle).pack(pady=5)
             tk.Button(vehicle_window, text="Отмена", command=vehicle_window.destroy).pack(pady=5)
-
-    def add_company(self):
-        name = simpledialog.askstring("Создать компанию", "Введите название компании:")
-        if name:
-            self.transport_company = TransportCompany(name)
-            self.clients_listbox.delete(0, tk.END)
-            self.vehicles_listbox.delete(0, tk.END)
-            self.status_bar.config(text=f"Компания {name} создана")
-
-    def add_client_to_company(self):
-        target_client = simpledialog.askinteger("Добавить клиента в компанию", "Введите номер клиента для добавления:")
-        if target_client and 0 < target_client <= len(self.transport_company.clients):
-            self.transport_company.add_client(self.transport_company.clients[target_client - 1])
-            self.status_bar.config(text="Клиент добавлен в компанию")
-        else:
-            messagebox.showwarning("Добавление клиента", "Пожалуйста, выберите корректного клиента для добавления")
-
-    def add_vehicle_to_company(self):
-        target_vehicle = simpledialog.askinteger("Добавить транспорт в компанию", "Введите номер транспорта для добавления:")
-        if target_vehicle and 0 < target_vehicle <= len(self.transport_company.vehicles):
-            self.transport_company.add_vehicle(self.transport_company.vehicles[target_vehicle - 1])
-            self.status_bar.config(text="Транспортное средство добавлено в компанию")
-        else:
-            messagebox.showwarning("Добавление транспорта", "Пожалуйста, выберите корректное транспортное средство для добавления")
-
-    def list_company_vehicles(self):
-        company_window = tk.Toplevel(self.root)
-        company_window.title("Список транспортных средств компании")
-
-        tk.Label(company_window, text=f"Список транспортных средств компании {self.transport_company.name}:").pack(pady=5)
-        company_vehicles_listbox = tk.Listbox(company_window, height=10, width=50)
-        company_vehicles_listbox.pack(padx=10, pady=10)
-
-        for vehicle in self.transport_company.list_vehicles():
-            company_vehicles_listbox.insert(tk.END, f"{vehicle}")
 
     def delete_client(self):
         selected_client_index = self.clients_listbox.curselection()
@@ -331,6 +290,7 @@ class TransportApp:
             messagebox.showwarning("Удаление транспорта", "Пожалуйста, выберите транспортное средство для удаления")
 
     def optimize_cargo(self):
+        # Обновление распределения грузов с учетом текущих весов грузов клиентов
         self.transport_company.optimize_cargo_distribution()
         self.update_vehicle_listbox()
         self.status_bar.config(text="Грузы оптимизированы")
@@ -355,9 +315,10 @@ class TransportApp:
             self.status_bar.config(text="Результаты экспортированы")
 
     def show_about(self):
-        messagebox.showinfo("О программе", "Лабораторная работа 12\nВариант: 1\nФИ: Крачко Андрей")
+        messagebox.showinfo("О программе", "Лабораторная работа 12\nВариант: 1\nФИО: Крачко Андрей Николаевич")
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = TransportApp(root)
+    app.load_and_display_data()  # Загрузка и отображение данных при запуске
     root.mainloop()
