@@ -3,29 +3,30 @@ from .client import Client
 
 class Vehicle:
     def __init__(self, capacity, current_load=0):
+        
+        capacity = int(capacity)  
+        current_load = int(current_load)  
+
         self.vehicle_id = str(random.randint(1000, 100000))
-        try:
-            capacity = int(capacity)
-        except ValueError:
-            raise ValueError("Грузоподъемность указывается числом")
-        try:
-            current_load = int(current_load)
-        except ValueError:
-            raise ValueError("Текущая загрузка указывается числом")
         self.capacity = capacity
         self.clients_list = []
         self.current_load = current_load
 
     def load_cargo(self, client):
-        try:
-            new_weight = self.current_load + client.cargo_weight
-        except AttributeError:
-            raise AttributeError("Вы должны передать клиента в параметр функции!")
+        
+        if not isinstance(client, Client):
+            raise TypeError("Вы должны передать объект клиента в параметр функции!")
+        
+        new_weight = self.current_load + client.cargo_weight
+        
+        
         if new_weight > self.capacity:
-            print("Грузоподъемность превышена! Действие отменено!")
-        else:
-            self.current_load = new_weight
-            self.clients_list.append(client)
+            raise OverflowError("Грузоподъемность превышена! Действие отменено!")
+        
+        self.current_load = new_weight
+        self.clients_list.append(client)
 
     def __str__(self):
-        return f"ID транспорта: {self.vehicle_id}\nГрузоподъемность транспорта: {self.capacity}\nЗагружено: {self.current_load}"
+        return (f"ID транспорта: {self.vehicle_id}\n"
+                f"Грузоподъемность транспорта: {self.capacity}\n"
+                f"Загружено: {self.current_load}")
