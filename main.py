@@ -6,7 +6,7 @@ all_clients = []
 all_vehicles = []
 all_company = []
 
-def double_decor():
+def double_beaut():
     print(f"{beaut}{beaut}")
 
 def print_menu():
@@ -35,9 +35,9 @@ def print_company_menu():
 
 while Status:
     print_menu()
-    double_decor()
+    double_beaut()
     input_data = input("Введите номер: ")
-    double_decor()
+    double_beaut()
     try:
         input_data = int(input_data)
     except ValueError:
@@ -66,9 +66,9 @@ while Status:
             print(f"Ошибка: {e}")
     elif input_data == 2:
         print_vehicle_menu()
-        double_decor()
+        double_beaut()
         input_data = input("Введите номер: ")
-        double_decor()
+        double_beaut()
         try:
             input_data = int(input_data)
         except ValueError:
@@ -113,7 +113,7 @@ while Status:
     elif input_data == 3:
         print_company_menu()
         input_data = input("Введите номер: ")
-        double_decor()
+        double_beaut()
         try:
             input_data = int(input_data)
         except ValueError:
@@ -137,7 +137,7 @@ while Status:
             target_company = input("Введите номер компании, список транспорта которой вы хотите посмотреть: ")
             try:
                 target_company = int(target_company)
-                double_decor()
+                double_beaut()
                 print(f"Вот список транспорта компании с идентификатором {target_company}:")
                 target_company -= 1
                 id = 0
